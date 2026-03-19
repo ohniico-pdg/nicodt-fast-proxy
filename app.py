@@ -24,7 +24,7 @@ def options_handler(path):
     return r, 200
 
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"
-GEMINI_MODEL = "gemini-1.5-flash-latest"
+GEMINI_MODEL = "gemini-2.5-flash"
 GPT_MODEL    = "gpt-4o-mini"
 
 def http_post(url, body, headers, timeout=120):
@@ -145,14 +145,17 @@ def gemini_fusion():
         return jsonify({"error": "Clé Gemini manquante"}), 400
 
     url = (
-        f"https://generativelanguage.googleapis.com/v1/models/"
-        f"{GEMINI_MODEL}:generateContent?key={key}"
+        f"https://generativelanguage.googleapis.com/v1beta/models/"
+        f"{GEMINI_MODEL}:generateContent"
     )
     body = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {"maxOutputTokens": 4000, "temperature": 0.2}
     }
-    headers = {"Content-Type": "application/json"}
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": key
+    }
 
     try:
         resp = http_post(url, body, headers)
