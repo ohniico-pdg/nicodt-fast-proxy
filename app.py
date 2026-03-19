@@ -1,12 +1,27 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 import urllib.request
 import urllib.error
 import json
 import os
 
 app = Flask(__name__)
-CORS(app, origins="*")
+
+@app.after_request
+def add_cors(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    return response
+
+@app.route("/", defaults={"path": ""}, methods=["OPTIONS"])
+@app.route("/<path:path>", methods=["OPTIONS"])
+def options_handler(path):
+    from flask import Response
+    r = Response()
+    r.headers["Access-Control-Allow-Origin"] = "*"
+    r.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    r.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    return r, 200
 
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"
 GEMINI_MODEL = "gemini-2.0-flash"
