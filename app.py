@@ -68,16 +68,14 @@ def claude_search():
     )
 
     body = {
-        "model": CLAUDE_MODEL,
+        "model": "claude-sonnet-4-6",
         "max_tokens": 4000,
         "system": system,
+        "tools": [{"type": "web_search_20250305", "name": "web_search"}],
         "messages": [
-            {"role": "user", "content": prompt},
-            {"role": "assistant", "content": "["}
+            {"role": "user", "content": prompt}
         ]
     }
-    if use_ws:
-        body["tools"] = [{"type": "web_search_20250305", "name": "web_search"}]
 
     headers = {
         "Content-Type": "application/json",
@@ -86,14 +84,19 @@ def claude_search():
     }
 
     try:
-        resp = http_post("https://api.anthropic.com/v1/messages", body, headers)
+        resp = http_post("https://api.anthropic.com/v1/messages", body, headers, timeout=120)
+        print("CLAUDE RESP stop_reason:", resp.get("stop_reason"), "content_types:", [b.get("type") for b in resp.get("content", [])], flush=True)
+        full_text = ""
         for blk in resp.get("content", []):
             if blk.get("type") == "text":
-                txt = blk["text"].strip()
-                if not txt.startswith("["):
-                    txt = "[" + txt
-                return jsonify({"result": txt})
-        return jsonify({"error": "Réponse Claude vide"}), 500
+                full_text += blk["text"]
+        print("CLAUDE TEXT:", full_text[:300], flush=True)
+        if full_text:
+            txt = full_text.strip()
+            if not txt.startswith("["):
+                txt = "[" + txt
+            return jsonify({"result": txt})
+        return jsonify({"error": "Reponse Claude sans texte. stop_reason=" + str(resp.get("stop_reason"))}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
