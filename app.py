@@ -24,7 +24,7 @@ def options_handler(path):
     return r, 200
 
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"
-GEMINI_MODEL = "gemini-1.5-flash"
+GEMINI_MODEL = "gemini-1.5-flash-latest"
 GPT_MODEL    = "gpt-4o-mini"
 
 def http_post(url, body, headers, timeout=120):
@@ -145,7 +145,7 @@ def gemini_fusion():
         return jsonify({"error": "Clé Gemini manquante"}), 400
 
     url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/"
+        f"https://generativelanguage.googleapis.com/v1/models/"
         f"{GEMINI_MODEL}:generateContent?key={key}"
     )
     body = {
