@@ -6,3 +6,4 @@ services:
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     plan: free
     healthCheckPath: /health
+    pythonVersion: "3.11.9"
